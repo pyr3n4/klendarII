@@ -169,16 +169,29 @@ function showInfoFlightWarning(aviso) {
  */
 
 function descargaICS(id){
-     //creación de la cadena de texto para el contenido del archivo ICS (formato según estándar internacional)
+//creación de la cadena de texto para el contenido del archivo ICS (formato según estándar internacional)
+     //Tratamiento de la fecha para el dtstart y dtstamp
+     var husoHorario = '00Z'; //TODO: NOTA IMPORTANTE, SE HAN FORMATEADO LAS FECHAS QUE VIENEN EN EL JSON PARA QUE FUNCIONE TANTO EN CALENDARIOS WINDOWS Y OUTLOOK PERO 
+     //HABRÍA QUE REVISAR CÓMO ESTABLECER CORRECTAMENTE EL HUSO HORARIO PARA CONTEMPLAR LA ZONA GMT, 00Z ES PARA QUE FUNCIONE EN OUTLOOK, HABLADO CON JUANMA (SOLUCIÓN: CONVERTIR LA HORA DEL JSON A HORA ZULÚ Y SUMARLE 2)
+     var fechaInicial = consultia_events[id]._fechaInicio.replace(/-/g, "");
+     fechaInicial = fechaInicial.split('+'); //quitamos el GMT quedándonos con la primera posición del array resultante
+     fechaInicial = fechaInicial[0].replace(':','');  //retiramos los dos puntos que separan horas de minutos
+     fechaInicial = fechaInicial + husoHorario; 
+     
+     var fechaFinal = consultia_events[id]._fechaFin.replace(/-/g, "");
+     fechaFinal = fechaFinal.split('+'); //quitamos el GMT quedándonos con la primera posición del array resultante
+     fechaFinal = fechaFinal[0].replace(':','');  //retiramos los dos puntos que separan horas de minutos
+     fechaFinal = fechaFinal + husoHorario; 
+     //REVISAR FORMATO DE LA DESCRIPCIÓN
         var icsFormat =
                 'BEGIN:VCALENDAR\n' +
                 'PRODID:-//Schedule a Meeting\n' +
                 'VERSION:2.0\n' +
                 'METHOD:REQUEST\n' +
                 'BEGIN:VEVENT\n' +
-                'DTSTART:' + consultia_events[id]._fechaInicio.replace("-", "") + '\n' + //reemplazo de guiones en las fechas
-                'DTSTAMP:' + consultia_events[id]._fechaInicio.replace("-", "") + '\n' +
-                'DTEND:' + consultia_events[id]._fechaFin.replace("-", "") + '\n' +
+                'DTSTART:' + fechaInicial + '\n' + //reemplazo de guiones en las fechas
+                'DTSTAMP:' + fechaInicial + '\n' +
+                'DTEND:' + fechaFinal + '\n' +
                 'LOCATION:' + consultia_events[id]._ubicacion + '\n' +
                 'UID:40ddbba4-abb2-4969-b9b6-9c75c3b9f5c2\n' +
                 icsDescription + //variable cuyo valor depende del tipo de reserva(evento) y se le asigna en los bloques específicos
